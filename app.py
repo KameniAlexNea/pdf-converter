@@ -206,6 +206,10 @@ def build_interface() -> gr.Blocks:
         outputs=gr.File(label="Merged PDF"),
         title="PDF Converter",
         description="Upload any number of images and PDFs to create a single merged PDF document.",
+        article=(
+            "Made by **KameniAlexNea**  \n"
+            "Project: [github.com/KameniAlexNea/pdf-converter](https://github.com/KameniAlexNea/pdf-converter)"
+        ),
     )
 
 
