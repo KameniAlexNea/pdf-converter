@@ -27,7 +27,26 @@ pip install -r requirements.txt
 
 ## Usage
 
-### Command line
+### Single-file app (Gradio by default)
+
+The [gradio_app.py](/home/eak/Documents/AI/Packages/pdf-converter/pdf-converter/gradio_app.py) script is self-contained and can be run in two modes:
+
+- **No arguments**: launches the Gradio web app
+- **With input paths**: runs in command-line mode and creates a merged PDF
+
+```bash
+python gradio_app.py
+python gradio_app.py /path/to/folder -o /path/to/output.pdf
+python gradio_app.py page1.png page2.jpg existing.pdf -o merged.pdf
+```
+
+You can also force web mode explicitly:
+
+```bash
+python gradio_app.py --gradio
+```
+
+### Command line (module entry point)
 
 Run the converter against a folder and optionally specify an output PDF path:
 
@@ -60,9 +79,10 @@ The script will convert `page1.png` and `page2.jpg` to temporary PDFs, include `
 
 ## Project files
 
-- `main.py`: command-line entry point
-- `pdf_converter.py`: conversion and merge logic
-- `tests/test_pdf_converter.py`: validation tests
+- `gradio_app.py`: self-contained Gradio + CLI entry point
+- `main.py`: command-line entry point using `pdf_converter.py`
+- `pdf_converter.py`: conversion and merge logic (library-style module)
+- `tests/test_pdf_converter.py`: validation tests for core merge behavior
 
 ## Running tests
 
