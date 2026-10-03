@@ -23,10 +23,6 @@ SUPPORTED_IMAGE_EXTENSIONS = {
 SUPPORTED_DOCUMENT_EXTENSIONS = {".pdf"} | SUPPORTED_IMAGE_EXTENSIONS
 
 
-def _normalize_file_list(paths: Iterable[Path]) -> list[Path]:
-    return sorted({Path(path) for path in paths}, key=lambda item: item.name.lower())
-
-
 def collect_documents(folder: Path, *, exclude: Path | None = None) -> list[Path]:
     """Return pdf and image files in the folder, sorted by filename."""
     folder = Path(folder)
@@ -51,7 +47,7 @@ def convert_image_to_pdf(image_path: Path, output_pdf_path: Path) -> Path:
     output_pdf_path.parent.mkdir(parents=True, exist_ok=True)
 
     with Image.open(image_path) as image:
-        rgb_image = image.convert("RGB") if image.mode not in {"RGB", "L"} else image
+        rgb_image = image.convert("RGB")
         rgb_image.save(output_pdf_path, format="PDF")
 
     return output_pdf_path
@@ -65,13 +61,16 @@ def merge_pdf_files(pdf_paths: Sequence[Path], output_pdf_path: Path) -> Path:
         raise ValueError("No PDF files to merge.")
 
     writer = PdfWriter()
-    for pdf_path in pdf_paths:
-        reader = PdfReader(str(pdf_path))
-        for page in reader.pages:
-            writer.add_page(page)
+    try:
+        for pdf_path in pdf_paths:
+            with PdfReader(str(pdf_path)) as reader:
+                for page in reader.pages:
+                    writer.add_page(page)
 
-    with output_pdf_path.open("wb") as output_file:
-        writer.write(output_file)
+        with output_pdf_path.open("wb") as output_file:
+            writer.write(output_file)
+    finally:
+        writer.close()
 
     return output_pdf_path
 
@@ -92,12 +91,12 @@ def scan_folder_and_merge(folder: Path, output_path: Path | str = "merged_docume
     temp_dir = Path(tempfile.mkdtemp(prefix="pdf-converter-"))
     converted_pdfs: list[Path] = []
     try:
-        for document in documents:
+        for index, document in enumerate(documents):
             if document.suffix.lower() == ".pdf":
                 converted_pdfs.append(document)
                 continue
 
-            temp_pdf = temp_dir / f"{document.stem}.pdf"
+            temp_pdf = temp_dir / f"{document.stem}_{index}.pdf"
             convert_image_to_pdf(document, temp_pdf)
             converted_pdfs.append(temp_pdf)
 
