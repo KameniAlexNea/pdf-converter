@@ -213,6 +213,7 @@ def build_interface() -> gr.Blocks:
     )
 
 
+
 def launch_gradio_interface() -> int:
     demo = build_interface()
     demo.launch()
@@ -260,4 +261,8 @@ def run_cli(argv: Sequence[str]) -> int:
 
 
 if __name__ == "__main__":
-    raise SystemExit(run_cli(sys.argv[1:]))
+    if sys.argv[1:]:
+        run_cli(sys.argv[1:])
+    else:
+        demo = build_interface()
+        demo.launch()
